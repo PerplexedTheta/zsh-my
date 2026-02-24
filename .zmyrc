@@ -1,0 +1,81 @@
+## for local bin
+LOCAL=/Users/macos/.local
+export PATH=$PATH:$LOCAL/bin
+LOCAL=/usr/local/bin
+export PATH=$PATH:$LOCAL/bin
+
+## aliases
+alias cls="clear"
+alias grep="grep --color=auto --exclude-dir={.bzr,CVS,.git,.hg,.svn,.idea,.tox,.venv,venv}"
+alias history="history -i"
+
+## for omz
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=12'
+
+## for editor
+export EDITOR="nvim"
+export VISUAL="$EDITOR"
+export PAGER="less"
+
+## for system
+export HOST="$(hostname -s | tr '[:upper:]' '[:lower:]')"
+export PATH=/opt/homebrew/Cellar/ruby/3.4.5/bin:$PATH
+
+## for gpg
+export GPG_TTY="$(tty)"
+if [[ $- == *i* ]] && [[ -n "$SSH_CONNECTION" ]] && [[ -z "$KEYCHAIN_UNLOCKED" ]]; then
+    security unlock-keychain
+    export KEYCHAIN_UNLOCKED=true
+fi
+encrypt_file () { gpg -c "$1" && rm "$1" }
+decrypt_file () { gpg -o "${1::-4}" -d "$1" >/dev/null && rm "$1" }
+
+## for gems
+export BUNDLE_PATH=~/.gems
+
+## for brew.sh
+[[ $(arch) = "arm64" ]] &&
+    eval "$(/opt/homebrew/bin/brew shellenv)" ||
+    eval "$(/usr/local/Homebrew/bin/brew shellenv)"
+
+## for nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+## for git
+export PROJECTS_DIR=~/Documents/Repos
+
+## for docker
+fpath=($HOME/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+
+## for k.t.d
+if [[ -z "$KTD_NAME" ]]; then
+    KTD_NAME="kohadev"
+fi
+export DOCKER_HOST=unix:///var/run/docker.sock
+export SYNC_REPO=$PROJECTS_DIR/kohaclone.git
+export KTD_HOME=$PROJECTS_DIR/koha-testing-docker.git
+export LOCAL_USER_ID=$(id -u)
+export PATH=$PATH:$KTD_HOME/bin
+alias ktdp="ktd_proxy"
+ktd-pull () { docker image prune -a && ktd_proxy --pull && ktd pull ; }
+ktd-prune () { docker volume prune -f ; }
+ktd-up () { ktd --name "$KTD_NAME" --localrun --plugins up "$@"; }
+alias ktd-start="ktd-up"
+ktd-down () { ktd --name "$KTD_NAME" down "$@" && ktd-prune ; }
+alias ktd-stop="ktd-down"
+ktd-restart () { ktd-down && ktd-up "$@" ; }
+ktd-shell () { ktd --name "$KTD_NAME" --shell "$@" ; }
+alias ktd-sh="ktd-shell"
+ktd-dbshell () { ktd --name "$KTD_NAME" --dbshell "$@" ; }
+alias ktd-db="ktd-dbshell"
+ktd-logs () { ktd --name "$KTD_NAME" --logs "$@" }
+alias ktd-tail="ktd-logs"
+
+## for a.d.b
+export ASPEN_CLONE=$PROJECTS_DIR/aspenclone.git
+export ASPEN_DOCKER=$PROJECTS_DIR/aspen-dev-box.git
+export PATH=$PATH:$ASPEN_DOCKER/bin/darwin

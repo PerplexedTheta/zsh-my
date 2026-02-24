@@ -72,6 +72,7 @@ ZSH_THEME="gnzh-my"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
   git
+  svn
   zsh-autosuggestions
   zsh-syntax-highlighting
   zsh-interactive-cd
@@ -107,3 +108,7 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+## DO NOT DELETE BELOW
+source $HOME/.zmyrc
+## DO NOT DELETE ABOVE
