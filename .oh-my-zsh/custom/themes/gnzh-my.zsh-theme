@@ -14,16 +14,17 @@ setopt prompt_subst
         PR_PROMPT='%F{red}➤ %f'
     fi
 
-    PR_HOST='%F{blue}%M%f'
+    PR_HOST='%F{blue}%m%f'
 
     local return_code="%(?..%F{red}%? ↵%f)"
 
     local user_host="${PR_USER}@${PR_HOST}"
     local current_dir="%F{yellow}%~%f"
     local git_branch='$(git_prompt_info)'
+    local svn_branch='$(svn_prompt_info)'
     local venv_prompt='$(virtualenv_prompt_info)' 
 
-    PROMPT="╭─${venv_prompt}${user_host} ${current_dir} \$(ruby_prompt_info) ${git_branch}
+    PROMPT="╭─${venv_prompt}${user_host} ${current_dir} \$(ruby_prompt_info) ${git_branch}${svn_branch}
 ╰─$PR_PROMPT "
     RPROMPT="${return_code}"
 
