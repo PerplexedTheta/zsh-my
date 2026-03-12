@@ -33,6 +33,10 @@ decrypt_file () { gpg -o "${1::-4}" -d "$1" >/dev/null && rm "$1" }
 ## for gems
 export BUNDLE_PATH=~/.gems
 
+## for perl
+export PERL5LIB="$HOME/.perl5:$PERL5LIB"
+export PATH="/opt/homebrew/Cellar/perl/5.42.0/bin:$PATH"
+
 ## for brew.sh
 [[ $(arch) = "arm64" ]] &&
     eval "$(/opt/homebrew/bin/brew shellenv)" ||
@@ -61,9 +65,11 @@ export KTD_HOME=$PROJECTS_DIR/koha-testing-docker.git
 export LOCAL_USER_ID=$(id -u)
 export PATH=$PATH:$KTD_HOME/bin
 alias ktdp="ktd_proxy"
+ktd-logs () { ktd --name "$KTD_NAME" --logs "$@" }
+alias ktd-tail="ktd-logs"
 ktd-pull () { docker image prune -a && ktd_proxy --pull && ktd pull ; }
 ktd-prune () { docker volume prune -f ; }
-ktd-up () { ktd --name "$KTD_NAME" --localrun --plugins up "$@"; }
+ktd-up () { ktd --name "$KTD_NAME" --localrun --plugins up -d "$@" && ktd-tail ; }
 alias ktd-start="ktd-up"
 ktd-down () { ktd --name "$KTD_NAME" down "$@" && ktd-prune ; }
 alias ktd-stop="ktd-down"
@@ -72,10 +78,24 @@ ktd-shell () { ktd --name "$KTD_NAME" --shell "$@" ; }
 alias ktd-sh="ktd-shell"
 ktd-dbshell () { ktd --name "$KTD_NAME" --dbshell "$@" ; }
 alias ktd-db="ktd-dbshell"
-ktd-logs () { ktd --name "$KTD_NAME" --logs "$@" }
-alias ktd-tail="ktd-logs"
 
 ## for a.d.b
+if [[ -z "$ADB_NAME" ]]; then
+    ADB_NAME="aspendev"
+fi
 export ASPEN_CLONE=$PROJECTS_DIR/aspenclone.git
-export ASPEN_DOCKER=$PROJECTS_DIR/aspen-dev-box.git
+export ASPEN_DOCKER=$PROJECTS_DIR/aspen-dev-box-image.git
 export PATH=$PATH:$ASPEN_DOCKER/bin/darwin
+adb-logs () { docker logs -f containeraspen "$@" }
+alias adb-tail="adb-logs"
+adb-pull () { docker image prune -a && adb pull ; }
+adb-prune () { docker volume prune -f ; }
+adb-up () { adb up -g -d "$@" && adb-tail ; }
+alias adb-start="adb-up"
+adb-down () { adb down "$@" && adb-prune ; }
+alias adb-stop="adb-down"
+adb-restart () { adb-down && adb-up "$@" ; }
+adb-shell () { adb shell "$@" ; }
+alias adb-sh="adb-shell"
+adb-dbshell () { adb db "$@" ; }
+alias adb-db="adb-dbshell"
